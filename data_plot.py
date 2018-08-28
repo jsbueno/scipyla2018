@@ -12,9 +12,12 @@ class NormalIter:
         self.offset = self.min_data if self.min_data >= 0 else -self.min_data
         self.scale = scale
 
+    def single(self, item):
+        return (item - self.offset) * self.normalize_factor * self.scale
+
     def __iter__(self):
         for item in self.data:
-            yield (item - self.offset) * self.normalize_factor * self.scale
+            yield self.single(item)
 
 
 
