@@ -10,10 +10,11 @@ FILENAME = 'candidatos.csv'
 
 MARGIN = 0.3
 BAR_SPACING = 0.2
-
+LABEL_MARGIN = 3
 
 color = (0, 128, 255)
 background_color = (255, 255, 255)
+label_color = (0, 0, 0)
 
 def read():
     with open(FILENAME) as f:
@@ -26,12 +27,15 @@ def read():
 
 
 def init():
-    global screen
+    global screen, font
 
+    pygame.init()
     flags = 0
     if os.environ.get('FULLSCREEN', False):
         flags = pygame.FULLSCREEN
     screen = pygame.display.set_mode(SIZE, flags)
+
+    font = pygame.font.SysFont('Sans', 16, bold=True)
     clear_screen()
 
 
@@ -68,13 +72,29 @@ def clean_data(raw_labels, raw_data):
         data.append(float(raw_point))
 
     usefull_height = SIZE[1] * (1 - MARGIN)
-    scaled_data = list(data_plot.NormalIter(data, usefull_height))
+    scaled_data = list(data_plot.NormalIter(data, usefull_height, normalize_min=False))
 
     return labels, data, scaled_data
 
+def render_label(label):
+    img = font.render(label, True, label_color)
+    return img
 
 def draw_bar(label_x, label_y, rectangle):
+
+    rectangle = pygame.Rect(rectangle)
+
     pygame.draw.rect(screen, color, rectangle)
+
+    img_label = render_label(label_x)
+    screen.blit(img_label, (rectangle.left, rectangle.top - img_label.get_height() - LABEL_MARGIN))
+
+    img_label = render_label(f'{label_y}%')
+
+    x = rectangle.left + (rectangle.width - img_label.get_width()) // 2
+    y = rectangle.top + LABEL_MARGIN
+    screen.blit(img_label, (x, y))
+
 
 
 def plot_hist(raw_labels, raw_data):
