@@ -10,9 +10,10 @@ FILENAME = 'candidatos.csv'
 
 MARGIN = 0.3
 BAR_SPACING = 0.2
-LABEL_MARGIN = 3
+LABEL_MARGIN = 4
 
 color = (0, 128, 255)
+border_color = (0, 0, 192)
 background_color = (255, 255, 255)
 label_color = (0, 0, 0)
 
@@ -82,19 +83,25 @@ def render_label(label, angle=0):
         img = pygame.transform.rotozoom(img, angle, 1)
     return img
 
-def draw_bar(label_x, label_y, rectangle):
 
-    rectangle = pygame.Rect(rectangle)
+def fancy_rect(rect):
+    pygame.draw.rect(screen, color, rect)
+    pygame.draw.rect(screen, border_color, rect, 3)
 
-    pygame.draw.rect(screen, color, rectangle)
+
+def draw_bar(label_x, label_y, rect):
+
+    rect = pygame.Rect(rect)
+
+    fancy_rect(rect)
 
     img_label = render_label(label_x, 45)
-    screen.blit(img_label, (rectangle.left, rectangle.top - img_label.get_height() - LABEL_MARGIN))
+    screen.blit(img_label, (rect.left, rect.top - img_label.get_height() - LABEL_MARGIN))
 
     img_label = render_label(f'{int(label_y)}%')
 
-    x = rectangle.left + (rectangle.width - img_label.get_width()) // 2
-    y = rectangle.top + LABEL_MARGIN
+    x = rect.left + (rect.width - img_label.get_width()) // 2
+    y = rect.top + LABEL_MARGIN
     screen.blit(img_label, (x, y))
 
 
