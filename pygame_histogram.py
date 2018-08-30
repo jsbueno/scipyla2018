@@ -76,8 +76,10 @@ def clean_data(raw_labels, raw_data):
 
     return labels, data, scaled_data
 
-def render_label(label):
+def render_label(label, angle=0):
     img = font.render(label, True, label_color)
+    if angle:
+        img = pygame.transform.rotozoom(img, angle, 1)
     return img
 
 def draw_bar(label_x, label_y, rectangle):
@@ -86,10 +88,10 @@ def draw_bar(label_x, label_y, rectangle):
 
     pygame.draw.rect(screen, color, rectangle)
 
-    img_label = render_label(label_x)
+    img_label = render_label(label_x, 45)
     screen.blit(img_label, (rectangle.left, rectangle.top - img_label.get_height() - LABEL_MARGIN))
 
-    img_label = render_label(f'{label_y}%')
+    img_label = render_label(f'{int(label_y)}%')
 
     x = rectangle.left + (rectangle.width - img_label.get_width()) // 2
     y = rectangle.top + LABEL_MARGIN
