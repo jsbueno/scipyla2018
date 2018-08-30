@@ -1,5 +1,6 @@
 import csv
 import os
+from pathlib import Path
 
 import pygame
 import data_plot
@@ -79,6 +80,17 @@ def clean_data(raw_labels, raw_data):
     return labels, data, scaled_data
 
 
+def load_photo(name, width):
+    name = name.lower().replace(' ', '_')
+    path = Path('resources') / f'{name}.jpg'
+    print(path)
+    if not os.path.exists(path):
+        return None
+    img = pygame.image.load(str(path))
+    img = pygame.transform.rotozoom(img, 0, width/img.get_width())
+    return img
+
+
 def render_label(label, angle=0):
     img = font.render(label, True, label_color)
     if angle:
@@ -113,6 +125,10 @@ def draw_bar(label_x, label_y, rect):
     x = rect.left + (rect.width - img_label.get_width()) // 2
     y = rect.top + LABEL_MARGIN
     screen.blit(img_label, (x, y))
+
+    photo_label = load_photo(label_x, rect.width)
+    if photo_label:
+        screen.blit(photo_label, (rect.left, rect.bottom + LABEL_MARGIN))
 
 
 def plot_hist(raw_labels, raw_data):
