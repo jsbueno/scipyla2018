@@ -1,4 +1,5 @@
 import csv
+import os
 
 import pygame
 import data_plot
@@ -12,6 +13,7 @@ BAR_SPACING = 0.2
 
 
 color = (0, 128, 255)
+background_color = (255, 255, 255)
 
 def read():
     with open(FILENAME) as f:
@@ -25,18 +27,37 @@ def read():
 
 def init():
     global screen
-    screen = pygame.display.set_mode(SIZE)
+
+    flags = 0
+    if os.environ.get('FULLSCREEN', False):
+        flags = pygame.FULLSCREEN
+    screen = pygame.display.set_mode(SIZE, flags)
+    clear_screen()
+
+
+def wait_click():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return
+        pygame.time.delay(50)
+
+
+def clear_screen():
+    screen.fill(background_color)
+    pygame.display.flip()
 
 
 def main():
     candidates, with_l, without_l = read()
     plot_hist(candidates, with_l)
-    input()
+    wait_click()
+    clear_screen()
     plot_hist(candidates, without_l)
-    input()
+    wait_click()
 
 
-def plot_hist(raw_labels, raw_data):
+def clean_data(raw_labels, raw_data):
     data = []
     labels = []
     for label, raw_point in zip(raw_labels, raw_data):
@@ -48,9 +69,19 @@ def plot_hist(raw_labels, raw_data):
 
     usefull_height = SIZE[1] * (1 - MARGIN)
     scaled_data = list(data_plot.NormalIter(data, usefull_height))
+
+    return labels, data, scaled_data
+
+
+def draw_bar(label_x, label_y, rectangle):
+    pygame.draw.rect(screen, color, rectangle)
+
+
+def plot_hist(raw_labels, raw_data):
+
+    labels, data, scaled_data = clean_data(raw_labels, raw_data)
+
     usefull_width = SIZE[0] * (1 - MARGIN)
-
-
     bar_width = usefull_width / len(data)
     bar_net_width = int(bar_width * (1 - BAR_SPACING))
 
@@ -60,12 +91,11 @@ def plot_hist(raw_labels, raw_data):
 
     x = int(bar_offset)
 
-    for point in scaled_data:
+    for label_x, label_y, point in zip(labels, data, scaled_data):
         y  = int(base_line - point)
         height = int(point)
 
-        print(x,y, bar_net_width, height)
-        pygame.draw.rect(screen, color, (x, y, bar_net_width, height))
+        draw_bar(label_x, label_y, (x, y, bar_net_width, height))
 
         x += int(bar_width)
 
