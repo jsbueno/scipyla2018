@@ -20,7 +20,6 @@ class NormalIter:
             yield self.single(item)
 
 
-
 def scatter(plot_func, size, data1, data2):
     width, height = size
     for x, y in zip(NormalIter(data1, width), NormalIter(data2, height)):
