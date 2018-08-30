@@ -12,8 +12,9 @@ MARGIN = 0.3
 BAR_SPACING = 0.2
 LABEL_MARGIN = 4
 
-color = (0, 128, 255)
-border_color = (0, 0, 192)
+color = (64, 128, 255)
+end_color = (0, 64, 64)
+border_color = (0, 0, 128)
 background_color = (255, 255, 255)
 label_color = (0, 0, 0)
 
@@ -77,6 +78,7 @@ def clean_data(raw_labels, raw_data):
 
     return labels, data, scaled_data
 
+
 def render_label(label, angle=0):
     img = font.render(label, True, label_color)
     if angle:
@@ -85,7 +87,15 @@ def render_label(label, angle=0):
 
 
 def fancy_rect(rect):
-    pygame.draw.rect(screen, color, rect)
+    color_steps = tuple((end_comp - comp) / rect.width for comp, end_comp in zip(color, end_color))
+    advance_color = lambda color: tuple(comp + step_comp for comp, step_comp in zip(color, color_steps))
+    color_fix = lambda color: tuple(int(comp) for comp in color)
+
+    tmp_color = color
+
+    for x in range(rect.left, rect.right):
+        pygame.draw.rect(screen, color_fix(tmp_color), (x, rect.top, 1, rect.height))
+        tmp_color = advance_color(tmp_color)
     pygame.draw.rect(screen, border_color, rect, 3)
 
 
@@ -103,7 +113,6 @@ def draw_bar(label_x, label_y, rect):
     x = rect.left + (rect.width - img_label.get_width()) // 2
     y = rect.top + LABEL_MARGIN
     screen.blit(img_label, (x, y))
-
 
 
 def plot_hist(raw_labels, raw_data):
